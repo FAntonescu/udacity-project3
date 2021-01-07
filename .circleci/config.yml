@@ -72,6 +72,8 @@ jobs:
       # Checkout code from git
       # Restore from cache
       # Your job code here
+      - run:
+        command: exit 1
                 
   test-backend:
     docker:
@@ -80,6 +82,8 @@ jobs:
       # Checkout code from git
       # Restore from cache
       # Your job code here
+      - run:
+        command: exit 1
             
   scan-frontend:
     docker:
@@ -88,6 +92,8 @@ jobs:
       # Checkout code from git
       # Restore from cache
       # Your job code here
+      - run:
+        command: exit 1
 
   scan-backend:
     docker:
@@ -96,6 +102,8 @@ jobs:
       # Checkout code from git
       # Restore from cache
       # Your job code here
+      - run:
+        command: exit 1
 
   deploy-infrastructure:
     docker:
@@ -176,6 +184,7 @@ jobs:
           name: Install dependencies
           command: |
             # your code here
+            exit 1
       - run:
           name: Get backend url
           command: |
@@ -186,6 +195,7 @@ jobs:
           name: Deploy frontend objects
           command: |
             # your code here
+            exit 1
       # Here's where you will add some code to rollback on failure      
                     
   deploy-backend:
@@ -199,10 +209,12 @@ jobs:
           name: Install dependencies
           command: |
             # your code here
+            exit 1
       - run:
           name: Deploy backend
           command: |
             # your code here
+            exit 1
       # Here's where you will add some code to rollback on failure  
 
   smoke-test:
@@ -214,18 +226,22 @@ jobs:
           name: Install dependencies
           command: |
             # your code here
+            exit 1
       - run:
           name: Get backend url
           command: |
             # your code here
+            exit 1
       - run:
           name: Backend smoke test.
           command: |
             # your code here
+            exit 1
       - run:
           name: Frontend smoke test.
           command: |
             # your code here
+            exit 1
       # Here's where you will add some code to rollback on failure  
 
   cloudfront-update:
@@ -237,10 +253,12 @@ jobs:
           name: Install dependencies
           command: |
             # your code here
+            exit 1
       - run:
           name: Update cloudfront distribution
           command: |
             # your code here
+            exit 1
       # Here's where you will add some code to rollback on failure  
 
 cleanup:
