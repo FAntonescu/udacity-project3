@@ -73,7 +73,8 @@ jobs:
       # Restore from cache
       # Your job code here
       - run:
-        command: exit 1
+          name: test-frontend
+          command: exit 1
                 
   test-backend:
     docker:
@@ -83,7 +84,8 @@ jobs:
       # Restore from cache
       # Your job code here
       - run:
-        command: exit 1
+          name: test-backend
+          command: exit 1
             
   scan-frontend:
     docker:
@@ -93,7 +95,8 @@ jobs:
       # Restore from cache
       # Your job code here
       - run:
-        command: exit 1
+          name: scan-frontend
+          command: exit 1
 
   scan-backend:
     docker:
@@ -103,7 +106,8 @@ jobs:
       # Restore from cache
       # Your job code here
       - run:
-        command: exit 1
+          name: scan-backend
+          command: exit 1
 
   deploy-infrastructure:
     docker:
