@@ -73,10 +73,12 @@ jobs:
     steps:
       - checkout # Checkout code from git
       # Restore from cache
-      # Your job code here
+      - restore_cache:
+          key: frontend-build
       - run:
           name: test-frontend
-          command: exit 1
+          working_directory: ./frontend
+          command: npm test
                 
   test-backend:
     docker:
@@ -84,10 +86,12 @@ jobs:
     steps:
       - checkout # Checkout code from git
       # Restore from cache
-      # Your job code here
+      - restore_cache:
+          key: backend-build
       - run:
           name: test-backend
-          command: exit 1
+          working_directory: ./backend
+          command: npm test
             
   scan-frontend:
     docker:
