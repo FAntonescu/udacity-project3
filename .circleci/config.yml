@@ -74,7 +74,7 @@ jobs:
       - checkout # Checkout code from git
       # Restore from cache
       - restore_cache:
-          key: frontend-build
+          keys: [frontend-build]
       - run:
           name: test-frontend
           working_directory: ./frontend
