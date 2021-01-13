@@ -87,7 +87,7 @@ jobs:
       - checkout # Checkout code from git
       # Restore from cache
       - restore_cache:
-          key: backend-build
+          keys: [backend-build]
       - run:
           name: test-backend
           working_directory: ./backend
@@ -99,10 +99,12 @@ jobs:
     steps:
       - checkout # Checkout code from git
       # Restore from cache
-      # Your job code here
+      - restore_cache:
+          keys: [frontend-build]
       - run:
           name: scan-frontend
-          command: exit 1
+          working_directory: ./frontend
+          command: npm audit --audit-level=critical
 
   scan-backend:
     docker:
@@ -110,10 +112,12 @@ jobs:
     steps:
       - checkout # Checkout code from git
       # Restore from cache
-      # Your job code here
+      - restore_cache:
+          keys: [backend-build]
       - run:
           name: scan-backend
-          command: exit 1
+          working_directory: ./backend
+          command: npm audit --audit-level=critical
 
   deploy-infrastructure:
     docker:
