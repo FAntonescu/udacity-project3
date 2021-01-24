@@ -209,6 +209,15 @@ jobs:
       # Here's where you will add some code to rollback on failure      
       #- destroy-environment:
       #    id: ${CIRCLE_WORKFLOW_ID:0:7}
+  check-postgres-connectivity:
+    docker:
+      - image: postgres:12.5
+    steps:
+      - run:
+          name: Check connectivity to Postgres 
+          command: | 
+            echo "check connectivity to Postgres using hostname: ${TYPEORM_HOST} on port ${TYPEORM_PORT}"
+            psql -U postgres -W ${TYPEORM_PASSWORD} -h ${TYPEORM_HOST} --list
   run-migrations:
     docker:
       - image: circleci/node:13.8.0
@@ -366,6 +375,8 @@ workflows:
               only: [test-feature-branch]
       - configure-infrastructure:
           requires: [deploy-infrastructure]
+      - check-postgres-connectivity:
+          requires: [configure-infrastructure]
       - run-migrations:
           requires: [configure-infrastructure]
       - deploy-frontend:
