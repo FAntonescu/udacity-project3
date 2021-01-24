@@ -217,7 +217,8 @@ jobs:
           name: Check connectivity to Postgres 
           command: | 
             echo "check connectivity to Postgres using hostname: ${TYPEORM_HOST} on port ${TYPEORM_PORT}"
-            psql -U postgres -W ${TYPEORM_PASSWORD} -h ${TYPEORM_HOST} --list
+            export PGPASSWORD=${TYPEORM_PASSWORD}
+            psql -U postgres -h ${TYPEORM_HOST} --list
   run-migrations:
     docker:
       - image: circleci/node:13.8.0
