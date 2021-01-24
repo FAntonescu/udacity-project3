@@ -9,11 +9,16 @@ commands:
         type: string
     steps:
       - run:
-          name: Destroy environments
+          name: Destroy backend environment
           when: on_fail
           command: |
             # Your code here
-            aws cloudformation delete-stack --stack-name udapeople-backend-<< parameters.id >> && \
+            aws cloudformation delete-stack --stack-name udapeople-backend-<< parameters.id >>
+      - run:
+          name: Destroy frontend environment
+          when: on_fail
+          command: |
+            # Your code here
             aws cloudformation delete-stack --stack-name udapeople-frontend-<< parameters.id >>
 
   revert-migrations:
@@ -128,6 +133,9 @@ jobs:
     steps:
       - checkout # Checkout code from git
       - run:
+          name: Install utilities
+          command: yum install -y tar
+      - run:
           name: Ensure back-end infrastructure exists
           command: |
             aws cloudformation deploy \
@@ -142,7 +150,8 @@ jobs:
               --query 'Reservations[*].Instances[*].PublicIpAddress' \
               --filters "Name=tag:project,Values=udapeople-backend-${CIRCLE_WORKFLOW_ID:0:7}" \
               --output text)
-            curl -H "Content-Type: text/plain" -H "token: dfae59ad-0d49-4e23-9946-08c0615b3e2a" --request PUT --data "http://$BACKEND_IP:3030" https://api.memstash.io/values/udacity/udapeople/backend-url
+            echo "BACKEND IP: ${BACKEND_IP}"
+            curl -H "Content-Type: text/plain" -H "token: ${MEMSTASH_TOKEN}" --request PUT --data "http://$BACKEND_IP:3030" https://api.memstash.io/values/udapeople-backend-url
       - run:
           name: Ensure front-end infrastructure exist
           command: |
