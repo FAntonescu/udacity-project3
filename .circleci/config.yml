@@ -205,7 +205,7 @@ jobs:
             pwd
             ls -l
             cat inventory.txt
-            ansible-playbook -i inventory.txt configure-server.yaml
+            ansible-playbook -i inventory.txt configure-server.yml
       # Here's where you will add some code to rollback on failure      
       #- destroy-environment:
       #    id: ${CIRCLE_WORKFLOW_ID:0:7}
