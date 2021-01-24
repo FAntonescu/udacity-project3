@@ -181,7 +181,7 @@ jobs:
 
   configure-infrastructure:
     docker:
-      - image: python
+      - image: python:3.9-alpine
     steps:
       - checkout # Checkout code from git
       # Add ssh keys with fingerprint
