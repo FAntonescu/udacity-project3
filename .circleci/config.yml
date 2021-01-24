@@ -214,18 +214,30 @@ jobs:
       - image: circleci/node:13.8.0
     steps:
       - checkout # Checkout code from git
+      - attach_workspace:
+        at: .
       - run:
           name: Run migrations
+          working_directory: ./backend
           command: |
             # Your code here
-            exit 1
+            npm run migrations > migration_status
       - run:
           name: Send migration results to memstash
+          working_directory: ./backend
           command: |
             # Your code here
-            exit 1
+            if [[ $(grep -q "has been executed successfully" migration_status) -eq 0 ]];             
+            then
+              echo "run-migration has been executed successfully, sending 'ok' to Memstash udapeople-migration_${CIRCLE_WORKFLOW_ID}"; 
+              curl -H "Content-Type: text/plain" -H "token: ${MEMSTASH_TOKEN}" --request PUT --data "ok" https://api.memstash.io/values/udapeople-migration_${CIRCLE_WORKFLOW_ID}
+            else 
+              echo "run-migration failed, sending 'fail' to Memstash udapeople-migration_${CIRCLE_WORKFLOW_ID}"; 
+              curl -H "Content-Type: text/plain" -H "token: ${MEMSTASH_TOKEN}" --request PUT --data "fail" https://api.memstash.io/values/udapeople-migration_${CIRCLE_WORKFLOW_ID}
+            fi
      # Here's where you will add some code to rollback on failure      
-
+     #- destroy-environment:
+     #    id: ${CIRCLE_WORKFLOW_ID:0:7}
   deploy-frontend:
     docker:
       - image: amazon/aws-cli:2.1.16
