@@ -77,8 +77,6 @@ jobs:
       - save_cache:
           paths: [backend/dist]
           key: backend-dist
-      - store_artifacts:
-          path: backend/dist
 
   test-frontend:
     docker:
@@ -300,7 +298,7 @@ jobs:
           fingerprints: ["31:ba:95:73:af:5d:f4:40:fa:aa:64:1d:05:25:a4:59"]
       # Restore from cache
       - restore_cache:
-          keys: [backend-build, backend-dist]
+          keys: [backend-dist]
       # attach workspace
       - attach_workspace:
           at: ~/
@@ -317,9 +315,8 @@ jobs:
             # your code here
             pwd
             ls -l
-            tree /home/circleci/project/backend/
             cat inventory.txt            
-            #ansible-playbook -v -i inventory.txt deploy-backend.yml
+            ansible-playbook -v -i inventory.txt deploy-backend.yml
       # Here's where you will add some code to rollback on failure  
 
   smoke-test:
@@ -389,37 +386,36 @@ jobs:
 workflows:
   default:
     jobs:
-#      - build-frontend
+      - build-frontend
       - build-backend
-#      - test-frontend:
-#          requires: [build-frontend]
-#      - test-backend:
-#          requires: [build-backend]
-#      - scan-backend:
-#          requires: [build-backend]
-#      - scan-frontend:
-#          requires: [build-frontend]
-#      - deploy-infrastructure:
-#          requires: [test-frontend, test-backend, scan-frontend, scan-backend]
-#          filters:
-#            branches:
-#              only: [test-feature-branch]
-#      - configure-infrastructure:
-#          requires: [deploy-infrastructure]
-#      - check-postgres-connectivity:
-#          requires: [deploy-infrastructure]
-#      - run-migrations:
-#          requires: [configure-infrastructure]
-#      - rebuild-frontend:
-#          requires: [run-migrations]
+      - test-frontend:
+          requires: [build-frontend]
+      - test-backend:
+          requires: [build-backend]
+      - scan-backend:
+          requires: [build-backend]
+      - scan-frontend:
+          requires: [build-frontend]
+      - deploy-infrastructure:
+          requires: [test-frontend, test-backend, scan-frontend, scan-backend]
+          filters:
+            branches:
+              only: [test-feature-branch]
+      - configure-infrastructure:
+          requires: [deploy-infrastructure]
+      - check-postgres-connectivity:
+          requires: [deploy-infrastructure]
+      - run-migrations:
+          requires: [configure-infrastructure]
+      - rebuild-frontend:
+          requires: [run-migrations]
 #      - deploy-frontend:
 #          requires: [rebuild-frontend]
       - deploy-backend:
-#          requires: [run-migrations]
-          requires: [build-backend]
-#      - smoke-test:
-#          requires: [deploy-backend, deploy-frontend]
-#      - cloudfront-update:
-#          requires: [smoke-test]
-#      - cleanup:
-#          requires: [cloudfront-update]
+          requires: [run-migrations]
+      - smoke-test:
+          requires: [deploy-backend, deploy-frontend]
+      - cloudfront-update:
+          requires: [smoke-test]
+      - cleanup:
+          requires: [cloudfront-update]

@@ -8,13 +8,7 @@
 - name: copy backend dist
   become: yes
   copy:
-    src: ../../backend/dist
-    dest: /opt/udapeople/backend
-
-- name: copy backend node_modules
-  become: yes
-  copy:
-    src: ../../backend/node_modules
+    src: /home/circleci/project/backend/dist
     dest: /opt/udapeople/backend
 
 - name: start PM2 service
