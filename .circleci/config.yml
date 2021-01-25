@@ -259,18 +259,19 @@ jobs:
           name: Install dependencies
           command: |
             # your code here
-            exit 1
+            echo "dependencies"
       - run:
           name: Get backend url
           command: |
             # your code here
-            export API_URL="http://${BACKEND_IP}:3030"
+            export API_URL=$(curl -H "token: ${MEMSTASH_TOKEN}" --request GET https://api.memstash.io/values/udapeople-backend-url)
             echo "${API_URL}"
       - run:
           name: Deploy frontend objects
           command: |
             # your code here
-            exit 1
+            npm run build
+            aws s3 cp ./dist "s3://udapeople-${CIRCLE_WORKFLOW_ID:0:7}" --recursive
       # Here's where you will add some code to rollback on failure      
                     
   deploy-backend:
