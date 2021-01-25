@@ -271,6 +271,7 @@ jobs:
             npm --version
       - run:
           name: Get backend url and re-build the frontend
+          working_directory: ./frontend
           command: |
             # your code here
             export API_URL=$(curl -H "token: ${MEMSTASH_TOKEN}" --request GET https://api.memstash.io/values/udapeople-backend-url)
