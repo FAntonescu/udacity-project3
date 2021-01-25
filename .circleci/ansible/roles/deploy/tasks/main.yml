@@ -5,13 +5,6 @@
     state: directory
     mode: '0755'
 
-- name: "Install rsync"
-  become: yes
-  apt:
-    update_cache: yes
-    name: ["rsync"]
-    state: latest
-
 - name: copy backend dist
   become: yes
   copy:
