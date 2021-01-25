@@ -72,8 +72,12 @@ jobs:
             npm install
             npm run build
       - save_cache:
-          paths: [backend/node_modules]
+          paths: 
+            - backend/node_modules
+            - backend/dist
           key: backend-build
+      - store_artifacts:
+          path: backend/dist
 
   test-frontend:
     docker:
@@ -293,6 +297,9 @@ jobs:
       # Add ssh keys with fingerprint
       - add_ssh_keys:
           fingerprints: ["31:ba:95:73:af:5d:f4:40:fa:aa:64:1d:05:25:a4:59"]
+      # Restore from cache
+      - restore_cache:
+          keys: [backend-build]
       # attach workspace
       - attach_workspace:
           at: ~/
@@ -309,8 +316,8 @@ jobs:
             # your code here
             pwd
             ls -l
-            cat inventory.txt
-            ansible-playbook -v -i inventory.txt deploy-backend.yml
+            cat inventory.txt            
+            #ansible-playbook -v -i inventory.txt deploy-backend.yml
       # Here's where you will add some code to rollback on failure  
 
   smoke-test:
@@ -395,16 +402,16 @@ workflows:
           filters:
             branches:
               only: [test-feature-branch]
-      - configure-infrastructure:
-          requires: [deploy-infrastructure]
-      - check-postgres-connectivity:
-          requires: [configure-infrastructure]
+#      - configure-infrastructure:
+#          requires: [deploy-infrastructure]
+#      - check-postgres-connectivity:
+#          requires: [deploy-infrastructure]
       - run-migrations:
           requires: [configure-infrastructure]
-      - rebuild-frontend:
-          requires: [run-migrations]
-      - deploy-frontend:
-          requires: [rebuild-frontend]
+#      - rebuild-frontend:
+#          requires: [run-migrations]
+#      - deploy-frontend:
+#          requires: [rebuild-frontend]
       - deploy-backend:
           requires: [run-migrations]
       - smoke-test:
