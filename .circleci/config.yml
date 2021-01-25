@@ -286,7 +286,7 @@ jobs:
       # Here's where you will add some code to rollback on failure      
                     
   deploy-backend:
-    ocker:
+    docker:
       - image: python:3.9-alpine
     steps:
       - checkout # Checkout code from git
