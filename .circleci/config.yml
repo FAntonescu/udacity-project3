@@ -299,6 +299,8 @@ jobs:
       # Restore from cache
       - restore_cache:
           keys: [backend-dist]
+      - restore_cache:
+          keys: [backend-build]
       # attach workspace
       - attach_workspace:
           at: ~/
@@ -316,7 +318,11 @@ jobs:
             pwd
             ls -l
             cat inventory.txt   
-            tar -zcvf /home/circleci/project/backend/dist.tar.gz /home/circleci/project/backend/dist
+            ANSIBLE_FOLDER=$(pwd)
+            cd /home/circleci/project/backend
+            tar -zcvf dist.tar.gz dist
+            tar -zcvf node_modules.tar.gz node_modules
+            cd ${ANSIBLE_FOLDER}
             ansible-playbook -v -i inventory.txt deploy-backend.yml
       # Here's where you will add some code to rollback on failure  
 

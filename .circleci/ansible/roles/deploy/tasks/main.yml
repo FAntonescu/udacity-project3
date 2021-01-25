@@ -11,6 +11,12 @@
     src: /home/circleci/project/backend/dist.tar.gz
     dest: /opt/udapeople/backend/dist.tar.gz
 
+- name: copy backend node_modules archive
+  become: yes
+  copy:
+    src: /home/circleci/project/backend/node_modules.tar.gz
+    dest: /opt/udapeople/backend/node_modules.tar.gz
+
 - name: extract dist.tar.gz
   become: yes
   unarchive:
@@ -18,8 +24,15 @@
     dest: /opt/udapeople/backend
     remote_src: yes
 
+- name: extract node_modules.tar.gz
+  become: yes
+  unarchive:
+    src: /opt/udapeople/backend/node_modules.tar.gz
+    dest: /opt/udapeople/backend
+    remote_src: yes
+
 - name: debug ls
-  command: ls -l /opt/udapeople/backend/home/circleci/project/backend/dist
+  command: ls -l /opt/udapeople/backend
   register: ls_out
 
 - debug: var=ls_out.stdout_lines
@@ -28,7 +41,7 @@
   become: yes
   command: pm2 start -f ./main.js
   args:
-    chdir: /opt/udapeople/backend/home/circleci/project/backend/dist
+    chdir: /opt/udapeople/backend/dist
   environment:
     ENVIRONMENT: production
     TYPEORM_CONNECTION: postgres
