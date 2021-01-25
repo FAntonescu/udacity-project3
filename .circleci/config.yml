@@ -134,7 +134,8 @@ jobs:
       - checkout # Checkout code from git
       - run:
           name: Install utilities tar and gzip
-          command: yum install -y tar gzip 
+          command: |
+            yum install -y tar gzip 
       - run:
           name: Ensure back-end infrastructure exists
           command: |
@@ -260,6 +261,8 @@ jobs:
           command: |
             # your code here
             echo "install nodejs and npm"
+            yum update
+            yum install -y epel-release
             yum install -y nodejs npm
       - run:
           name: Get backend url
