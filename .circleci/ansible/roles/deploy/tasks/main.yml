@@ -5,30 +5,17 @@
     state: directory
     mode: '0755'
 
-- name: copy backend dist archive
+- name: copy backend archive
   become: yes
   copy:
-    src: /home/circleci/project/backend/dist.tar.gz
-    dest: /opt/udapeople/backend/dist.tar.gz
+    src: /home/circleci/project/backend.tar.gz
+    dest: /opt/udapeople/backend.tar.gz
 
-- name: copy backend node_modules archive
-  become: yes
-  copy:
-    src: /home/circleci/project/backend/node_modules.tar.gz
-    dest: /opt/udapeople/backend/node_modules.tar.gz
-
-- name: extract dist.tar.gz
+- name: extract backend.tar.gz
   become: yes
   unarchive:
-    src: /opt/udapeople/backend/dist.tar.gz
-    dest: /opt/udapeople/backend
-    remote_src: yes
-
-- name: extract node_modules.tar.gz
-  become: yes
-  unarchive:
-    src: /opt/udapeople/backend/node_modules.tar.gz
-    dest: /opt/udapeople/backend
+    src: /opt/udapeople/backend.tar.gz
+    dest: /opt/udapeople
     remote_src: yes
 
 - name: debug ls
@@ -37,15 +24,29 @@
 
 - debug: var=ls_out.stdout_lines
 
+- name: build dependencies
+  become: yes
+  command: npm install
+  args:
+    chdir: /opt/udapeople/backend
+
+- name: build backend
+  become: yes
+  command: npm run build
+  args:
+    chdir: /opt/udapeople/backend
+
 - name: start PM2 service
   become: yes
-  command: pm2 start -f ./main.js
+  command: pm2 start npm -- run start
   args:
-    chdir: /opt/udapeople/backend/dist
+    chdir: /opt/udapeople/backend
   environment:
     ENVIRONMENT: production
     TYPEORM_CONNECTION: postgres
     TYPEORM_ENTITIES: ./src/modules/domain/**/*.entity.ts
+    TYPEORM_MIGRATIONS_DIR: ./src/migrations
+    TYPEORM_MIGRATIONS: ./src/migrations./*.ts
     TYPEORM_HOST: "{{ lookup('env', 'TYPEORM_HOST') }}"
     TYPEORM_PORT: "{{ lookup('env', 'TYPEORM_PORT') }}"
     TYPEORM_USERNAME: "{{ lookup('env', 'TYPEORM_USERNAME') }}"

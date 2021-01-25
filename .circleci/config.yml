@@ -74,9 +74,6 @@ jobs:
       - save_cache:
           paths: [backend/node_modules]
           key: backend-build
-      - save_cache:
-          paths: [backend/dist]
-          key: backend-dist
 
   test-frontend:
     docker:
@@ -296,11 +293,6 @@ jobs:
       # Add ssh keys with fingerprint
       - add_ssh_keys:
           fingerprints: ["31:ba:95:73:af:5d:f4:40:fa:aa:64:1d:05:25:a4:59"]
-      # Restore from cache
-      - restore_cache:
-          keys: [backend-dist]
-      - restore_cache:
-          keys: [backend-build]
       # attach workspace
       - attach_workspace:
           at: ~/
@@ -312,17 +304,11 @@ jobs:
             ansible --version
       - run:
           name: Deploy backend
-          working_directory: ./.circleci/ansible
+          working_directory: ./
           command: |
             # your code here
-            pwd
-            ls -l
-            cat inventory.txt   
-            ANSIBLE_FOLDER=$(pwd)
-            cd /home/circleci/project/backend
-            tar -zcvf dist.tar.gz dist
-            tar -zcvf node_modules.tar.gz node_modules
-            cd ${ANSIBLE_FOLDER}
+            tar -zcvf backend.tar.gz backend
+            cd .circleci/ansible
             ansible-playbook -v -i inventory.txt deploy-backend.yml
       # Here's where you will add some code to rollback on failure  
 
