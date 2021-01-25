@@ -198,7 +198,7 @@ jobs:
           name: Install dependencies
           working_directory: ./.circleci/ansible
           command: |
-            apk add --update ansible
+            apk add --update ansible tar gzip
             ansible --version
       - run:
           name: Configure server
