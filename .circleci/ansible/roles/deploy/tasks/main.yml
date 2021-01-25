@@ -6,11 +6,13 @@
     mode: '0755'
 
 - name: copy backend dist archive
+  become: yes
   copy:
     src: /home/circleci/project/backend/dist.tar.gz
     dest: /opt/udapeople/backend/dist.tar.gz
 
 - name: extract dist.tar.gz
+  become: yes
   unarchive:
     src: /opt/udapeople/backend/dist.tar.gz
     dest: /opt/udapeople/backend
