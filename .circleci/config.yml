@@ -251,33 +251,29 @@ jobs:
      # Here's where you will add some code to rollback on failure      
      #- destroy-environment:
      #    id: ${CIRCLE_WORKFLOW_ID:0:7}
+  rebuild-frontend:
+    docker:
+      - image: circleci/node:13.8.0
+    steps:
+      - checkout
+      - run:
+          name: Build front-end
+          working_directory: ./frontend
+          command: |
+            export API_URL=$(curl -H "token: ${MEMSTASH_TOKEN}" --request GET https://api.memstash.io/values/udapeople-backend-url)
+            echo "${API_URL}"
+            npm install
+            npm run build
+      - save_cache:
+          paths: [frontend/dist]
+          key: frontend-dist
   deploy-frontend:
     docker:
       - image: amazon/aws-cli:2.1.16
     steps:
       - checkout # Checkout code from git
-      - run:
-          name: Install dependencies
-          working_directory: /tmp
-          command: |
-            # your code here
-            echo "install nodejs and npm"
-            yum update -y
-            yum install -y wget
-            wget https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
-            yum install -y epel-release-latest-7.noarch.rpm
-            yum install -y nodejs npm
-            node --version
-            npm --version
-      - run:
-          name: Get backend url and re-build the frontend
-          working_directory: ./frontend
-          command: |
-            # your code here
-            export API_URL=$(curl -H "token: ${MEMSTASH_TOKEN}" --request GET https://api.memstash.io/values/udapeople-backend-url)
-            echo "${API_URL}"
-            npm install
-            npm run build
+      - restore_cache:
+          keys: [frontend-dist]
       - run:
           name: Deploy frontend objects
           working_directory: ./frontend
@@ -393,8 +389,10 @@ workflows:
           requires: [configure-infrastructure]
       - run-migrations:
           requires: [configure-infrastructure]
-      - deploy-frontend:
+      - rebuild-frontend:
           requires: [run-migrations]
+      - deploy-frontend:
+          requires: [rebuild-frontend]
       - deploy-backend:
           requires: [run-migrations]
       - smoke-test:
