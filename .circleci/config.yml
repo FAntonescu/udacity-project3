@@ -270,18 +270,18 @@ jobs:
             node --version
             npm --version
       - run:
-          name: Get backend url
+          name: Get backend url and re-build the frontend
           command: |
             # your code here
             export API_URL=$(curl -H "token: ${MEMSTASH_TOKEN}" --request GET https://api.memstash.io/values/udapeople-backend-url)
             echo "${API_URL}"
+            npm install
+            npm run build
       - run:
           name: Deploy frontend objects
           working_directory: ./frontend
           command: |
             # your code here
-            npm install
-            npm run build
             aws s3 cp ./dist "s3://udapeople-${CIRCLE_WORKFLOW_ID:0:7}" --recursive
       # Here's where you will add some code to rollback on failure      
                     
