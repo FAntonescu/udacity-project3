@@ -6,14 +6,14 @@
 
 - name: copy backend dist
   become: yes
-  sychronize:
+  synchronize:
     src: ../../backend/dist
     dest: /opt/udapeople/backend
     recursive: true
 
 - name: copy backend node_modules
   become: yes
-  sychronize:
+  synchronize:
     src: ../../backend/node_modules
     dest: /opt/udapeople/backend
     recursive: true
