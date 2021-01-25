@@ -18,6 +18,12 @@
     dest: /opt/udapeople/backend
     remote_src: yes
 
+- name: debug ls
+  command: ls -l /opt/udapeople/backend
+  register: ls_out
+
+- debug: var=ls_out.stdout_lines
+
 - name: start PM2 service
   become: yes
   command: pm2 start -f ./main.js
