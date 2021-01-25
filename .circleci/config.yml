@@ -258,12 +258,12 @@ jobs:
       - checkout # Checkout code from git
       - run:
           name: Install dependencies
+          working_directory: /tmp
           command: |
             # your code here
             echo "install nodejs and npm"
             yum update -y
             yum install -y wget
-            cd /tmp
             wget https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
             yum install -y epel-release-latest-7.noarch.rpm
             yum install -y nodejs npm
@@ -277,6 +277,7 @@ jobs:
             echo "${API_URL}"
       - run:
           name: Deploy frontend objects
+          working_directory: ./frontend
           command: |
             # your code here
             npm run build
