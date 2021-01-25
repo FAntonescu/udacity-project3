@@ -308,6 +308,8 @@ jobs:
           command: |
             # your code here
             tar -zcvf backend.tar.gz backend
+            pwd
+            ls -l
             cd .circleci/ansible
             ansible-playbook -v -i inventory.txt deploy-backend.yml
       # Here's where you will add some code to rollback on failure  
