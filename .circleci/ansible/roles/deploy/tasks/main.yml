@@ -22,7 +22,7 @@
   become: yes
   command: pm2 start -f ./main.js
   args:
-    chdir: /opt/udapeople/backend/dist
+    chdir: /opt/udapeople/backend
   environment:
     ENVIRONMENT: production
     TYPEORM_CONNECTION: postgres
