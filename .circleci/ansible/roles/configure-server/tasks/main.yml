@@ -9,7 +9,7 @@
   become: yes
   apt:
     update_cache: yes
-    name: ["nodejs", "npm"]
+    name: ["nodejs", "npm", "tar", "gzip"]
     state: latest
 
 - name: "Install PM2"

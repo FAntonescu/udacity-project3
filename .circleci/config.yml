@@ -198,7 +198,7 @@ jobs:
           name: Install dependencies
           working_directory: ./.circleci/ansible
           command: |
-            apk add --update ansible tar gzip
+            apk add --update ansible
             ansible --version
       - run:
           name: Configure server
@@ -306,7 +306,7 @@ jobs:
           name: Install dependencies
           working_directory: ./.circleci/ansible
           command: |
-            apk add --update ansible
+            apk add --update ansible tar gzip
             ansible --version
       - run:
           name: Deploy backend
@@ -315,7 +315,8 @@ jobs:
             # your code here
             pwd
             ls -l
-            cat inventory.txt            
+            cat inventory.txt   
+            tar -zcvf /home/circleci/project/backend/dist.tar.gz /home/circleci/project/backend/dist
             ansible-playbook -v -i inventory.txt deploy-backend.yml
       # Here's where you will add some code to rollback on failure  
 

@@ -5,15 +5,16 @@
     state: directory
     mode: '0755'
 
-- name: archive backend dist
-  archive:
-    path: /home/circleci/project/backend/dist
-    dest: /home/circleci/project/backend/dist.tgz
+- name: copy backend dist archive
+  copy:
+    src: /home/circleci/project/backend/dist.tar.gz
+    dest: /opt/udapeople/backend/dist.tar.gz
 
-- name: extract dist.tgz to the remote folder
+- name: extract dist.tar.gz
   unarchive:
-    src: /home/circleci/project/backend/dist.tgz
-    dest: /opt/udapeople/backend/
+    src: /opt/udapeople/backend/dist.tar.gz
+    dest: /opt/udapeople/backend
+    remote_src: yes
 
 - name: start PM2 service
   become: yes
