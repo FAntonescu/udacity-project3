@@ -19,7 +19,7 @@
     remote_src: yes
 
 - name: debug ls
-  command: ls -l /opt/udapeople/backend
+  command: ls -l /opt/udapeople/backend/home/circleci/project/backend/dist
   register: ls_out
 
 - debug: var=ls_out.stdout_lines
@@ -28,7 +28,7 @@
   become: yes
   command: pm2 start -f ./main.js
   args:
-    chdir: /opt/udapeople/backend
+    chdir: /opt/udapeople/backend/home/circleci/project/backend/dist
   environment:
     ENVIRONMENT: production
     TYPEORM_CONNECTION: postgres
