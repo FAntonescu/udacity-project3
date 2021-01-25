@@ -72,9 +72,7 @@ jobs:
             npm install
             npm run build
       - save_cache:
-          paths: 
-            - backend/node_modules
-            - backend/dist
+          paths: [backend/node_modules, backend/dist]
           key: backend-build
       - store_artifacts:
           path: backend/dist
@@ -387,7 +385,7 @@ jobs:
 workflows:
   default:
     jobs:
-      - build-frontend
+#      - build-frontend
       - build-backend
 #      - test-frontend:
 #          requires: [build-frontend]
