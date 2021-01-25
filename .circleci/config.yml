@@ -202,7 +202,6 @@ jobs:
           working_directory: ./.circleci/ansible
           command: |
             # Your code here
-            whoami
             pwd
             ls -l
             cat inventory.txt
@@ -287,22 +286,31 @@ jobs:
       # Here's where you will add some code to rollback on failure      
                     
   deploy-backend:
-    docker:
-      - image: ansible/ansible-runner
+    ocker:
+      - image: python:3.9-alpine
     steps:
       - checkout # Checkout code from git
       # Add ssh keys with fingerprint
+      - add_ssh_keys:
+          fingerprints: ["31:ba:95:73:af:5d:f4:40:fa:aa:64:1d:05:25:a4:59"]
       # attach workspace
+      - attach_workspace:
+          at: ~/
       - run:
           name: Install dependencies
+          working_directory: ./.circleci/ansible
           command: |
-            # your code here
-            exit 1
+            apk add --update ansible
+            ansible --version
       - run:
           name: Deploy backend
+          working_directory: ./.circleci/ansible
           command: |
             # your code here
-            exit 1
+            pwd
+            ls -l
+            cat inventory.txt
+            ansible-playbook -v -i inventory.txt deploy-backend.yml
       # Here's where you will add some code to rollback on failure  
 
   smoke-test:

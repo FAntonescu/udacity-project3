@@ -1,0 +1,34 @@
+- name: create the application folder
+  ansible.builtin.file:
+    path: /opt/udapeople/backend
+    state: directory
+    mode: '0755'
+
+- name: copy backend dist
+  become: yes
+  sychronize:
+    src: ../../backend/dist
+    dest: /opt/udapeople/backend
+    recursive: true
+
+- name: copy backend node_modules
+  become: yes
+  sychronize:
+    src: ../../backend/node_modules
+    dest: /opt/udapeople/backend
+    recursive: true
+
+- name: start PM2 service
+  become: yes
+  command: pm2 start -f ./main.js
+  args:
+    chdir: /opt/udapeople/backend/dist
+  environment:
+    ENVIRONMENT: production
+    TYPEORM_CONNECTION: postgres
+    TYPEORM_ENTITIES: ./src/modules/domain/**/*.entity.ts
+    TYPEORM_HOST: "{{ lookup('env', 'TYPEORM_HOST') }}"
+    TYPEORM_PORT: "{{ lookup('env', 'TYPEORM_PORT') }}"
+    TYPEORM_USERNAME: "{{ lookup('env', 'TYPEORM_USERNAME') }}"
+    TYPEORM_PASSWORD: "{{ lookup('env', 'TYPEORM_PASSWORD') }}"
+    TYPEORM_DATABASE: "{{ lookup('env', 'TYPEORM_DATABASE') }}"
