@@ -422,18 +422,21 @@ jobs:
                 --stack-status-filter CREATE_COMPLETE --no-paginate --output text)) 
             
             echo "Old Workflow ID: ${OldWorkflowID}"
-            echo "STACKS: ${STACKS}"
       - run:
           name: Remove old stacks and files
           command: |
+            echo "preparing to remove stack with Workflow ID: ${OldWorkflowID}"
             if [[ "${STACKS[@]}" =~ "${OldWorkflowID}" ]]
             then
               # your code here
               # remove stacks
+              echo "remove stack: udapeople-backend-${OldWorkflowID}"
               aws cloudformation delete-stack --stack-name "udapeople-backend-${OldWorkflowID}"
               # remove S3 bucket
+              echo "remove S3 bucket: udapeople-${OldWorkflowID}"
               aws s3 rm "s3://udapeople-${OldWorkflowID}" --recursive
               # remove frontend stack
+              echo "remove stack: udapeople-frontend-${OldWorkflowID}"
               aws cloudformation delete-stack --stack-name "udapeople-frontend-${OldWorkflowID}"
             fi
             
