@@ -19,25 +19,28 @@ commands:
           when: on_fail
           command: |
             # Your code here
+            aws s3 rm s3://udapeople-<< parameters.id >> --recursive
             aws cloudformation delete-stack --stack-name udapeople-frontend-<< parameters.id >>
 
   revert-migrations:
     description: Revert the last migration if successfully run in the current workflow.
     parameters:
-      # Add parameter here     
+      # Add parameter here  
+      id:
+        type: string   
     steps:
       - run:
           name: Revert migrations
           # Add when this will run
+          when: on_fail
           command: |
             # Curl command here to see if there was a successful migration associated with the workflow id, store result in SUCCESS variable
-            SUCCESS = 1
-            if(( $SUCCESS==1 )); 
+            OK=$(curl -H "Content-Type: text/plain" -H "token: ${MEMSTASH_TOKEN}" --request GET https://api.memstash.io/values/udapeople-migration_${CIRCLE_WORKFLOW_ID})
+            if [[ "$OK" == "ok" ]]
             then
-            #  cd ~/project/backend
-            #  npm install
-            #  Add revert code here. You can find this in the Getting Started section.
-              exit 1
+              cd ~/project/backend
+              npm install
+              npm run migrations:revert
             fi
             
 jobs:
@@ -177,8 +180,8 @@ jobs:
           paths:
             - project/.circleci/ansible/inventory.txt
       # Here's where you will add some code to rollback on failure      
-      #- destroy-environment:
-      #    id: ${CIRCLE_WORKFLOW_ID:0:7}
+      - destroy-environment:
+          id: ${CIRCLE_WORKFLOW_ID:0:7}
 
   configure-infrastructure:
     docker:
@@ -207,8 +210,9 @@ jobs:
             cat inventory.txt
             ansible-playbook -i inventory.txt configure-server.yml
       # Here's where you will add some code to rollback on failure      
-      #- destroy-environment:
-      #    id: ${CIRCLE_WORKFLOW_ID:0:7}
+      - destroy-environment:
+          id: ${CIRCLE_WORKFLOW_ID:0:7}
+
   check-postgres-connectivity:
     docker:
       - image: postgres:12.5
@@ -219,6 +223,9 @@ jobs:
             echo "check connectivity to Postgres using hostname: ${TYPEORM_HOST} on port ${TYPEORM_PORT}"
             export PGPASSWORD=${TYPEORM_PASSWORD}
             psql -U postgres -h ${TYPEORM_HOST} --list
+      - destroy-environment:
+          id: ${CIRCLE_WORKFLOW_ID:0:7}
+
   run-migrations:
     docker:
       - image: circleci/node:13.8.0
@@ -248,8 +255,9 @@ jobs:
               curl -H "Content-Type: text/plain" -H "token: ${MEMSTASH_TOKEN}" --request PUT --data "fail" https://api.memstash.io/values/udapeople-migration_${CIRCLE_WORKFLOW_ID}
             fi
      # Here's where you will add some code to rollback on failure      
-     #- destroy-environment:
-     #    id: ${CIRCLE_WORKFLOW_ID:0:7}
+     - destroy-environment:
+         id: ${CIRCLE_WORKFLOW_ID:0:7}
+
   rebuild-frontend:
     docker:
       - image: circleci/node:13.8.0
@@ -266,6 +274,9 @@ jobs:
       - save_cache:
           paths: [frontend/dist]
           key: frontend-dist
+      - destroy-environment:
+          id: ${CIRCLE_WORKFLOW_ID:0:7}
+
   deploy-frontend:
     docker:
       - image: amazon/aws-cli:2.1.16
@@ -284,6 +295,10 @@ jobs:
             ls -l /home/circleci/project/frontend/dist
             aws s3 cp /home/circleci/project/frontend/dist "s3://udapeople-${CIRCLE_WORKFLOW_ID:0:7}" --recursive
       # Here's where you will add some code to rollback on failure      
+      - destroy-environment:
+         id: ${CIRCLE_WORKFLOW_ID:0:7}
+      - revert_migrations:
+          id: ${CIRCLE_WORKFLOW_ID:0:7}
                     
   deploy-backend:
     docker:
@@ -313,6 +328,10 @@ jobs:
             cd .circleci/ansible
             ansible-playbook -v -i inventory.txt deploy-backend.yml
       # Here's where you will add some code to rollback on failure  
+      - destroy-environment:
+         id: ${CIRCLE_WORKFLOW_ID:0:7}
+      - revert_migrations:
+          id: ${CIRCLE_WORKFLOW_ID:0:7}
 
   smoke-test:
     docker:
@@ -346,6 +365,10 @@ jobs:
               return 1
             fi
       # Here's where you will add some code to rollback on failure  
+      - destroy-environment:
+          id: ${CIRCLE_WORKFLOW_ID:0:7}
+      - revert_migrations:
+          id: ${CIRCLE_WORKFLOW_ID:0:7}
 
   cloudfront-update:
     docker:
@@ -363,6 +386,8 @@ jobs:
             # your code here
             exit 1
       # Here's where you will add some code to rollback on failure  
+      - revert_migrations:
+          id: ${CIRCLE_WORKFLOW_ID:0:7}
 
   cleanup:
     docker:
