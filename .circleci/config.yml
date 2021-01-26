@@ -316,7 +316,7 @@ jobs:
 
   smoke-test:
     docker:
-      - image: circleci/alpine:3.13
+      - image: alpine:3.13
     steps:
       - checkout # Checkout code from git
       - run:
@@ -335,8 +335,16 @@ jobs:
           name: Frontend smoke test.
           command: |
             # your code here
-            FRONTEND_URL="http://udapeople-${CIRCLE_WORKFLOW_ID:0:7}.s3-website.eu-central-1.amazonaws.com/index.html"
+            FRONTEND_URL="http://udapeople-${CIRCLE_WORKFLOW_ID:0:7}.s3-website.eu-central-1.amazonaws.com/"
             curl -s ${FRONTEND_URL} | grep -q "Welcome"
+            STATUS=$?
+            if [[ $STATUS -eq 0 ]]
+            then
+              # force failure
+              return 1
+            else
+              return 1
+            fi
       # Here's where you will add some code to rollback on failure  
 
   cloudfront-update:
