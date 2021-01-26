@@ -316,29 +316,27 @@ jobs:
 
   smoke-test:
     docker:
-      - image: circleci/node:13.8.0
+      - image: circleci/alpine:3.13
     steps:
       - checkout # Checkout code from git
       - run:
           name: Install dependencies
           command: |
             # your code here
-            exit 1
-      - run:
-          name: Get backend url
-          command: |
-            # your code here
-            exit 1
+            apk add curl
       - run:
           name: Backend smoke test.
           command: |
             # your code here
-            exit 1
+            export BACKEND_URL=$(curl -H "token: ${MEMSTASH_TOKEN}" --request GET https://api.memstash.io/values/udapeople-backend-url)
+            echo "${BACKEND_URL}"
+            curl "${BACKEND_URL}/api/status"
       - run:
           name: Frontend smoke test.
           command: |
             # your code here
-            exit 1
+            FRONTEND_URL="http://udapeople-${CIRCLE_WORKFLOW_ID:0:7}.s3-website.eu-central-1.amazonaws.com/index.html"
+            curl -s ${FRONTEND_URL} | grep -q "Welcome"
       # Here's where you will add some code to rollback on failure  
 
   cloudfront-update:
@@ -404,12 +402,12 @@ workflows:
           requires: [configure-infrastructure]
       - rebuild-frontend:
           requires: [run-migrations]
-#      - deploy-frontend:
-#          requires: [rebuild-frontend]
+      - deploy-frontend:
+          requires: [rebuild-frontend]
       - deploy-backend:
           requires: [run-migrations]
-#      - smoke-test:
-#          requires: [deploy-backend, deploy-frontend]
+      - smoke-test:
+          requires: [deploy-backend, deploy-frontend]
 #      - cloudfront-update:
 #          requires: [smoke-test]
 #      - cleanup:
