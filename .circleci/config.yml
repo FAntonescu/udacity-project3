@@ -369,14 +369,14 @@ jobs:
             # your code here
             FRONTEND_URL="http://udapeople-${CIRCLE_WORKFLOW_ID:0:7}.s3-website.eu-central-1.amazonaws.com/"
             curl -s ${FRONTEND_URL} | grep -q "Welcome"
-            STATUS=$?
-            if [[ $STATUS -eq 0 ]]
-            then
-              # force failure
-              return 1
-            else
-              return 1
-            fi
+            #STATUS=$?
+            #if [[ $STATUS -eq 0 ]]
+            #then
+            #  # force failure
+            #  return 1
+            #else
+            #  return 1
+            #fi
       # Here's where you will add some code to rollback on failure  
       - destroy-environment:
           id: ${CIRCLE_WORKFLOW_ID:0:7}
@@ -397,7 +397,11 @@ jobs:
           name: Update cloudfront distribution
           command: |
             # your code here
-            exit 1
+            aws cloudformation deploy \
+              --template-file ./.circleci/files/cloudfront.yaml \
+              --stack-name udapeople-vekb3zs6da2fbxtn \
+              --parameter-overrides WorkflowID="${CIRCLE_WORKFLOW_ID:0:7}" \
+              --tags project=udapeople
       # Here's where you will add some code to rollback on failure  
       - revert-migrations:
           id: ${CIRCLE_WORKFLOW_ID:0:7}
@@ -454,7 +458,7 @@ workflows:
           requires: [run-migrations]
       - smoke-test:
           requires: [deploy-backend, deploy-frontend]
-#      - cloudfront-update:
-#          requires: [smoke-test]
+      - cloudfront-update:
+          requires: [smoke-test]
 #      - cleanup:
 #          requires: [cloudfront-update]
