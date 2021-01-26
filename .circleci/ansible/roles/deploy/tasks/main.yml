@@ -8,7 +8,7 @@
 - name: copy backend archive
   become: yes
   copy:
-    src: /home/circleci/project/backend.tar.gz
+    src: /root/project/backend.tar.gz
     dest: /opt/udapeople/backend.tar.gz
 
 - name: extract backend.tar.gz
