@@ -412,7 +412,7 @@ jobs:
     steps:
       - checkout # Checkout code from git
       - run:
-          name: Get old stack workflow id
+          name: Remove old stacks and files
           command: |
             # your code here
             export OldWorkflowID=$(aws cloudformation \
@@ -422,10 +422,7 @@ jobs:
                 --stack-status-filter CREATE_COMPLETE --no-paginate --output text)) 
             
             echo "Old Workflow ID: ${OldWorkflowID}"
-      - run:
-          name: Remove old stacks and files
-          command: |
-            echo "preparing to remove stack with Workflow ID: ${OldWorkflowID}"
+
             if [[ "${STACKS[@]}" =~ "${OldWorkflowID}" ]]
             then
               # your code here
