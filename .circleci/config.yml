@@ -200,6 +200,7 @@ jobs:
           command: |
             apk add --update ansible
             ansible --version
+            pip install awscli
       - run:
           name: Configure server
           working_directory: ./.circleci/ansible
@@ -231,6 +232,11 @@ jobs:
       - image: circleci/node:13.8.0
     steps:
       - checkout # Checkout code from git
+      - run:
+          name: install dependencies
+          command: |
+            sudo apt-get update -y
+            sudo apt-get install -y curl awscli
       # Restore backend from cache
       - restore_cache:
           keys: [backend-build]
@@ -264,6 +270,11 @@ jobs:
     steps:
       - checkout
       - run:
+          name: install dependencies
+          command: |
+            sudo apt-get update -y
+            sudo apt-get install -y curl awscli
+      - run:
           name: Build front-end
           working_directory: ./frontend
           command: |
@@ -286,6 +297,7 @@ jobs:
           name: Install utilities tar and gzip
           command: |
             yum install -y tar gzip 
+            yum install -y nodejs npm
       - restore_cache:
           keys: [frontend-dist]
       - run:
@@ -296,7 +308,7 @@ jobs:
             aws s3 cp /home/circleci/project/frontend/dist "s3://udapeople-${CIRCLE_WORKFLOW_ID:0:7}" --recursive
       # Here's where you will add some code to rollback on failure      
       - destroy-environment:
-         id: ${CIRCLE_WORKFLOW_ID:0:7}
+          id: ${CIRCLE_WORKFLOW_ID:0:7}
       - revert-migrations:
           id: ${CIRCLE_WORKFLOW_ID:0:7}
                     
@@ -313,10 +325,10 @@ jobs:
           at: ~/
       - run:
           name: Install dependencies
-          working_directory: ./.circleci/ansible
           command: |
-            apk add --update ansible tar gzip
+            apk add --update ansible tar gzip nodejs npm
             ansible --version
+            pip install awscli
       - run:
           name: Deploy backend
           working_directory: ./
@@ -335,14 +347,15 @@ jobs:
 
   smoke-test:
     docker:
-      - image: alpine:3.13
+      - image: python:3.9-alpine
     steps:
       - checkout # Checkout code from git
       - run:
           name: Install dependencies
           command: |
             # your code here
-            apk add curl
+            apk add curl nodejs npm
+            pip install awscli
       - run:
           name: Backend smoke test.
           command: |
