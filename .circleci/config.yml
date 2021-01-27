@@ -137,8 +137,6 @@ jobs:
       - image: amazon/aws-cli:2.1.16
     steps:
       - checkout # Checkout code from git
-      - attach_workspace:
-          at: ~/
       - run:
           name: get old workflow id
           command: |
@@ -150,6 +148,8 @@ jobs:
           name: Install utilities tar and gzip
           command: |
             yum install -y tar gzip 
+      - attach_workspace:
+          at: ~/
       - run:
           name: Ensure back-end infrastructure exists
           command: |
@@ -159,7 +159,7 @@ jobs:
               --stack-name "udapeople-backend-${CIRCLE_WORKFLOW_ID:0:7}" \
               --parameter-overrides ID="${CIRCLE_WORKFLOW_ID:0:7}"  
       - run:
-          name: Programmatically save the new back-end url to MemStash.io
+          name: save the new back-end url
           command: |
             BACKEND_IP=$(aws ec2 describe-instances \
               --query 'Reservations[*].Instances[*].PublicIpAddress' \
@@ -191,6 +191,8 @@ jobs:
           root: ~/
           paths:
             - project/.circleci/ansible/inventory.txt
+            - udapeople-backend-url
+            - old-workflow-id
       # Here's where you will add some code to rollback on failure      
       - destroy-environment:
           id: ${CIRCLE_WORKFLOW_ID:0:7}
@@ -203,7 +205,10 @@ jobs:
       # Add ssh keys with fingerprint
       - add_ssh_keys:
           fingerprints: ["31:ba:95:73:af:5d:f4:40:fa:aa:64:1d:05:25:a4:59"]
-      # attach workspace
+      - run:
+          name: Install utilities tar and gzip
+          command: |
+            apk add tar gzip 
       - attach_workspace:
           at: ~/
       - run:
@@ -281,18 +286,19 @@ jobs:
       - image: circleci/node:13.8.0
     steps:
       - checkout
-      - attach_workspace:
-          at: ~/
       - run:
           name: install dependencies
           command: |
             sudo apt-get update -y
-            sudo apt-get install -y curl awscli
+            sudo apt-get install -y curl awscli tar gzip
+      - attach_workspace:
+          at: ~/
       - run:
           name: Build front-end
           working_directory: ./frontend
           command: |
-            export API_URL=$(cat ../udapeople-backend-url)
+            ls ~/udapeople-backend-url
+            export API_URL=$(cat ~/udapeople-backend-url)
             echo "${API_URL}"
             npm install
             npm run build
@@ -305,8 +311,6 @@ jobs:
       - image: python:3.9-alpine
     steps:
       - checkout # Checkout code from git
-      - attach_workspace:
-          at: ~/
       # Add ssh keys with fingerprint
       - add_ssh_keys:
           fingerprints: ["31:ba:95:73:af:5d:f4:40:fa:aa:64:1d:05:25:a4:59"]
@@ -317,6 +321,8 @@ jobs:
             apk add --update ansible tar gzip nodejs npm curl
             ansible --version
             pip install awscli
+      - attach_workspace:
+          at: ~/
       - run:
           name: Deploy backend
           working_directory: ./
@@ -338,19 +344,19 @@ jobs:
       - image: python:3.9-alpine
     steps:
       - checkout # Checkout code from git
-      - attach_workspace:
-          at: ~/
       - run:
           name: Install dependencies
           command: |
             # your code here
-            apk add curl nodejs npm
+            apk add curl nodejs npm tar gzip
             pip install awscli
+      - attach_workspace:
+          at: ~/
       - run:
           name: Backend smoke test.
           command: |
             # your code here
-            export BACKEND_URL=$(cat udapeople-backend-url)
+            export BACKEND_URL=$(cat ~/udapeople-backend-url)
             echo "${BACKEND_URL}"
             curl "${BACKEND_URL}/api/status"
       - run:
@@ -402,13 +408,18 @@ jobs:
       - image: amazon/aws-cli:2.1.16
     steps:
       - checkout # Checkout code from git
+      - run:
+          name: Install dependencies
+          command: |
+            # your code here
+            yum install -y tar gzip
       - attach_workspace:
           at: ~/
       - run:
           name: Remove old stacks and files
           command: |
-            # your code here
-            export OldWorkflowID=$(cat old-workflow-id)
+            ls ~/old-workflow-id
+            export OldWorkflowID=$(cat ~/old-workflow-id)
             export STACKS=($(aws cloudformation list-stacks --query "StackSummaries[*].StackName" \
                 --stack-status-filter CREATE_COMPLETE --no-paginate --output text)) 
             
