@@ -138,6 +138,8 @@ jobs:
       - image: amazon/aws-cli:2.1.16
     steps:
       - checkout # Checkout code from git
+      - attach_workspace:
+          at: ~/
       - run:
           name: Install utilities tar and gzip
           command: |
@@ -158,7 +160,8 @@ jobs:
               --filters "Name=tag:project,Values=udapeople-backend-${CIRCLE_WORKFLOW_ID:0:7}" \
               --output text)
             echo "BACKEND IP: ${BACKEND_IP}"
-            curl -H "Content-Type: text/plain" -H "token: ${MEMSTASH_TOKEN}" --request PUT --data "http://$BACKEND_IP:3030" https://api.memstash.io/values/udapeople-backend-url
+            echo "http://$BACKEND_IP:3030" > udapeople-backend-url
+            pwd
       - run:
           name: Ensure front-end infrastructure exist
           command: |
@@ -272,6 +275,8 @@ jobs:
       - image: circleci/node:13.8.0
     steps:
       - checkout
+      - attach_workspace:
+          at: ~/
       - run:
           name: install dependencies
           command: |
@@ -281,11 +286,11 @@ jobs:
           name: Build front-end
           working_directory: ./frontend
           command: |
-            export API_URL=$(curl -H "token: ${MEMSTASH_TOKEN}" --request GET https://api.memstash.io/values/udapeople-backend-url)
+            export API_URL=$(cat ../udapeople-backend-url)
             echo "${API_URL}"
             npm install
             npm run build
-            aws s3 cp /home/circleci/project/frontend/dist "s3://udapeople-${CIRCLE_WORKFLOW_ID:0:7}" --recursive
+            aws s3 cp ./dist "s3://udapeople-${CIRCLE_WORKFLOW_ID:0:7}" --recursive
       - destroy-environment:
           id: ${CIRCLE_WORKFLOW_ID:0:7}
                   
@@ -294,12 +299,12 @@ jobs:
       - image: python:3.9-alpine
     steps:
       - checkout # Checkout code from git
+      - attach_workspace:
+          at: ~/
       # Add ssh keys with fingerprint
       - add_ssh_keys:
           fingerprints: ["31:ba:95:73:af:5d:f4:40:fa:aa:64:1d:05:25:a4:59"]
       # attach workspace
-      - attach_workspace:
-          at: ~/
       - run:
           name: Install dependencies
           command: |
@@ -327,6 +332,8 @@ jobs:
       - image: python:3.9-alpine
     steps:
       - checkout # Checkout code from git
+      - attach_workspace:
+          at: ~/
       - run:
           name: Install dependencies
           command: |
@@ -337,7 +344,7 @@ jobs:
           name: Backend smoke test.
           command: |
             # your code here
-            export BACKEND_URL=$(curl -H "token: ${MEMSTASH_TOKEN}" --request GET https://api.memstash.io/values/udapeople-backend-url)
+            export BACKEND_URL=$(cat udapeople-backend-url)
             echo "${BACKEND_URL}"
             curl "${BACKEND_URL}/api/status"
       - run:
