@@ -32,7 +32,9 @@
 
 - name: build npm backend
   become: yes
-  command: npm run build
+  command: |
+    export API_URL=$(curl -H "token: ${MEMSTASH_TOKEN}" --request GET https://api.memstash.io/values/udapeople-backend-url)
+    npm run build
   args:
     chdir: /opt/udapeople/backend
 
