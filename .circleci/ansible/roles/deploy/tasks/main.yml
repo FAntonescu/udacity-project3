@@ -32,7 +32,7 @@
   environment:
     API_URL: "{{ lookup('env', 'API_URL') }}"
 
-- name: build npm backend
+- name: build npm backend 
   become: yes
   command: npm run build
   args:
