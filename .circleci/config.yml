@@ -49,12 +49,12 @@ jobs:
       - image: circleci/node:13.8.0
     steps:
       - checkout
-      - restore_cache:
-          keys: [frontend-build]
       - run:
           name: Build front-end
           working_directory: ./frontend
           command: |
+            rm -rf node_modules
+            rm -rf dist
             npm install
             npm run build
       - save_cache:
@@ -66,14 +66,13 @@ jobs:
       - image: circleci/node:13.8.0
     steps:
       - checkout
-      - restore_cache:
-          keys: [backend-build]
       - run:
           name: Back-end build
           working_directory: ./backend
           command: |
+            rm -rf node_modules
+            rm -rf dist
             npm install
-            npm audit fix
             npm run build
       - save_cache:
           paths: [backend/node_modules]
