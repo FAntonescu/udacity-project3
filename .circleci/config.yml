@@ -140,6 +140,13 @@ jobs:
       - attach_workspace:
           at: ~/
       - run:
+          name: get old workflow id
+          command: |
+            export OldWorkflowID=$(aws cloudformation \
+              list-exports --query "Exports[?Name==\`WorkflowID\`].Value" \
+              --no-paginate --output text)
+            echo "${OldWorkflowID}" > old-workflow-id
+      - run:
           name: Install utilities tar and gzip
           command: |
             yum install -y tar gzip 
@@ -395,11 +402,13 @@ jobs:
       - image: amazon/aws-cli:2.1.16
     steps:
       - checkout # Checkout code from git
+      - attach_workspace:
+          at: ~/
       - run:
           name: Remove old stacks and files
           command: |
             # your code here
-            export OldWorkflowID=$(curl -H "token: ${MEMSTASH_TOKEN}" --request GET https://api.memstash.io/values/udapeople-workflow-id)
+            export OldWorkflowID=$(cat old-workflow-id)
             export STACKS=($(aws cloudformation list-stacks --query "StackSummaries[*].StackName" \
                 --stack-status-filter CREATE_COMPLETE --no-paginate --output text)) 
             
@@ -419,7 +428,7 @@ jobs:
               aws cloudformation delete-stack --stack-name "udapeople-frontend-${OldWorkflowID}"
             fi
             # set current workflow id
-            curl -H "token: ${MEMSTASH_TOKEN}" --request PUT --data "${CIRCLE_WORKFLOW_ID:0:7}" https://api.memstash.io/values/udapeople-workflow-id
+            echo "${CIRCLE_WORKFLOW_ID:0:7}" > old-workflow-id
 workflows:
   default:
     jobs:
