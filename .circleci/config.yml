@@ -138,18 +138,18 @@ jobs:
     steps:
       - checkout # Checkout code from git
       - run:
-          name: get old workflow id
-          command: |
-            export OldWorkflowID=$(aws cloudformation \
-              list-exports --query "Exports[?Name==\`WorkflowID\`].Value" \
-              --no-paginate --output text)
-            echo "${OldWorkflowID}" > old-workflow-id
-      - run:
           name: Install utilities tar and gzip
           command: |
             yum install -y tar gzip 
       - attach_workspace:
           at: ~/
+      - run:
+          name: get old workflow id
+          command: |
+            export OldWorkflowID=$(aws cloudformation \
+              list-exports --query "Exports[?Name==\`WorkflowID\`].Value" \
+              --no-paginate --output text)
+            echo "${OldWorkflowID}" > ~/old-workflow-id
       - run:
           name: Ensure back-end infrastructure exists
           command: |
@@ -166,7 +166,7 @@ jobs:
               --filters "Name=tag:project,Values=udapeople-backend-${CIRCLE_WORKFLOW_ID:0:7}" \
               --output text)
             echo "BACKEND IP: ${BACKEND_IP}"
-            echo "http://$BACKEND_IP:3030" > udapeople-backend-url
+            echo "http://$BACKEND_IP:3030" > ~/udapeople-backend-url
             pwd
       - run:
           name: Ensure front-end infrastructure exist
@@ -191,8 +191,8 @@ jobs:
           root: ~/
           paths:
             - project/.circleci/ansible/inventory.txt
-            - udapeople-backend-url
-            - old-workflow-id
+            - ~/udapeople-backend-url
+            - ~/old-workflow-id
       # Here's where you will add some code to rollback on failure      
       - destroy-environment:
           id: ${CIRCLE_WORKFLOW_ID:0:7}
@@ -438,8 +438,6 @@ jobs:
               echo "remove stack: udapeople-frontend-${OldWorkflowID}"
               aws cloudformation delete-stack --stack-name "udapeople-frontend-${OldWorkflowID}"
             fi
-            # set current workflow id
-            echo "${CIRCLE_WORKFLOW_ID:0:7}" > old-workflow-id
 workflows:
   default:
     jobs:
