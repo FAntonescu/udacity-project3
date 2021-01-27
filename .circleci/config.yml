@@ -337,8 +337,8 @@ jobs:
           command: |
             # your code here
             tar -zcvf backend.tar.gz backend
-            pwd
-            ls -l
+            node --version
+            npm --version
             cd .circleci/ansible
             export API_URL=$(curl -H "token: ${MEMSTASH_TOKEN}" --request GET https://api.memstash.io/values/udapeople-backend-url)
             echo "${API_URL}"

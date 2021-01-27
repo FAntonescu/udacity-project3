@@ -24,6 +24,12 @@
 
 - debug: var=ls_out.stdout_lines
 
+- name: node version
+  command: node --version
+  register: node_ver_out
+
+- debug: var=node_ver_out.stdout_lines
+
 - name: build npm dependencies
   become: yes
   command: npm install
