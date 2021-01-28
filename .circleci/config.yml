@@ -150,6 +150,7 @@ jobs:
               list-exports --query "Exports[?Name==\`WorkflowID\`].Value" \
               --no-paginate --output text)
             echo "${OldWorkflowID}" > ~/old-workflow-id
+            echo "old-workflow-id: ${OldWorkflowID}" 
       - run:
           name: Ensure back-end infrastructure exists
           command: |
